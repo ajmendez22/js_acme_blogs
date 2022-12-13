@@ -30,20 +30,16 @@ function createSelectOptions(users){
 }
 
 //3 toggleCommentSection
-  function toggleCommentSection(postId) {
-        if (!postId) {
-            return undefined;
-        } else {
-            const commentSections = document.querySelectorAll('[data-post-id]');
-            for (let i = 0; i < commentSections.length; i++) {
-                const commentSection = commentSections[i];
-                if (commentSection.getAttribute('data-post-id') === postId) {
-                    commentSection.classList.toggle('hide');
-                    return commentSection;
-                }
-            }
-            return null;
-        }   
+const toggleCommentSection = (postId) => {
+    if (!postId) {
+        return undefined;
+    } 
+    const section = document.querySelector (`[data-post-id="${postId}"]`)
+    if (section) {
+        section.classList.toggle('hide');
+        return section;
+    }
+    return null;
 }
 
 //4 toggleCommentButton
@@ -73,18 +69,18 @@ function deleteChildElements(param) {
 }
 
  //6 addButtonListeners
-  const addButtonListeners = function() {
-    const buttons = document.querySelectorAll("main")[0].querySelectorAll('button');
-    if (buttons.length > 0) {
-        buttons.forEach( (button) => {
-            const postID = button.dataset.postId; 
-            button.addEventListener("click", function(event) {
-                toggleCommentButton(event, postID);
-            })
-        })
-    }
-    return buttons; 
-}
+ let addButtonListeners = () =>{
+    const buttons = document.querySelectorAll("main button");
+    if(buttons)
+      {
+        for(let i = 0; i < buttons.length; i++)
+        {
+          const id = buttons[i].dataset.postId;
+          buttons[i].addEventListener("click", (event) => { toggleComments(event, id)}, false);
+        }
+      }
+    return buttons;
+  };
 
 //7 removeButtonListeners
   const removeButtonListeners = () => {
@@ -110,15 +106,15 @@ function deleteChildElements(param) {
     }
     const fragment = document.createDocumentFragment();
     for (let i = 0; i < comments.length; i++) {
-    const element = comments[i];
-        let a = document.createElement("a");
-        let h3 = createElemWithText("h3", comments.name);
-        let p1 = createElemWithText("p", comments.body);
-        let p2 = createElemWithText("p", `From: ${comments.email}`);
-        a.appendChild(h3);
-        a.appendChild(p1);
-        a.appendChild(p2);
-        fragment.appendChild(a);
+        const element = comments[i];
+        let article = document.createElement("article");
+        let h3 = createElemWithText("h3", element.name);
+        let p1 = createElemWithText("p", element.body);
+        let p2 = createElemWithText("p", `From: ${element.email}`);
+        article.appendChild(h3);
+        article.appendChild(p1);
+        article.appendChild(p2);
+        fragment.appendChild(article);
     }
     return fragment;
 }
@@ -205,7 +201,7 @@ const createPosts = async (jsonPosts) => {
     let fragment = document.createDocumentFragment();
     for (let i = 0; i < jsonPosts.length; i++) {
         let post = jsonPosts[i];
-        let article = document.createElement("article");
+        const article = document.createElement("article");
         let section = await displayComments(post.id);
         let author = await getUser(post.userId);
         let h2 = createElemWithText("h2", post.title);
